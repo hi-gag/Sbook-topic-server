@@ -4,7 +4,7 @@ const controller = require('./controller')
 const loadExpressApp = (app) => {
   app.use(cors({ origin: true, credentials: true }));
 
-  app.get('/', controller.getSample);
+  app.post('/bookmark/:bookmarkListId/new', controller.postBookmark);
 
   app.use((error, req, res, next) => {
     res

@@ -28,6 +28,10 @@
 ```json
 {
   "bookmarkListId": 11,
+  "title": "",
+  "description": "",
+  "img": "",
+  "url": "",
   "keywords": ["react", "효과"]
 }
 ```
