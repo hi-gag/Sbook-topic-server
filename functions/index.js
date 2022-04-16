@@ -10,5 +10,8 @@ admin.initializeApp({
 const app = express();
 loadExpressApp(app);
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions.runWith({
+  timeoutSeconds: 360,
+  memory: "1GB",
+}).https.onRequest(app);
 
