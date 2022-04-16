@@ -1,6 +1,7 @@
 const { extract } = require('article-parser/dist/cjs/article-parser.js')
 const mod = require('korean-text-analytics');
 const admin = require('firebase-admin');
+const stringHash = require("string-hash");
 
 const getRecommends = async(req, res, next) => {
   try {
@@ -47,6 +48,8 @@ const postBookmark = async(req, res, next) => {
     const {
       url, description, title, image, content,
     } = await extract(bookmarkUrl)
+
+    //TODO 중복 체크해줘야댐
 
     const lineBreakRemovedContent = content.replace(/\n/g, ' ');
     const codeRemovedContent = lineBreakRemovedContent.replace(/<\s*code[^>]*>(.*?)<\s*\/\s*code>/g, '');
@@ -139,22 +142,32 @@ const postBookmark = async(req, res, next) => {
       .filter(([str, weight]) => str.length > 1 && weight > 5)
       .sort((prev, post) => post[1] - prev[1])
       .map((v) => v[0])
-      .slice(0,5)
+      .slice(0,3)
 
-    await admin.firestore().collection('bookmarks').add({
+    const bookmarkId = String(stringHash(url + bookmarkListId));
+
+    const ref = admin.firestore().collection('bookmarks').doc(bookmarkId);
+    const isRefExist = await ref.get();
+
+    if (isRefExist.exists) {
+      return res.status(400).json({error: '이미 북마크에 있습니다'})
+    }
+
+    await ref.set({
+      id:bookmarkId,
       bookmarkListId,
       title,
       keywords,
       url:bookmarkUrl,
-      recommends : []
+      recommends : null
     })
 
-
     return res.status(201).json({
+      id:bookmarkId,
       bookmarkListId,
       title,
       description,
-      keywords: keywords.slice(0,3),
+      keywords: keywords,
       image,
       url,
     })

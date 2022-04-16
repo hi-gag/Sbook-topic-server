@@ -1755,6 +1755,7 @@ __metadata:
   resolution: "functions@workspace:."
   dependencies:
     article-parser: ^6.0.0
+    axios: ^0.26.1
     cors: ^2.8.5
     eslint: ^5.12.0
     eslint-plugin-promise: ^4.0.1
@@ -1764,6 +1765,7 @@ __metadata:
     firebase-functions-test: ^0.2.0
     korean-text-analytics: ^0.0.7
     mecab-ya: ^0.1.1
+    string-hash: ^1.1.3
   languageName: unknown
   linkType: soft
 
@@ -3864,6 +3866,13 @@ __metadata:
   version: 1.1.0
   resolution: "string-comparison@npm:1.1.0"
   checksum: 7cdb7958a45885fa856fe7768916b98a9cfdeb12cb60c23f28bdddc67fb6ecd9e272841f505ea1c6af97fbe0d227f0a0237e5a750d014a2310da8ccb441589b5
+  languageName: node
+  linkType: hard
+
+"string-hash@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "string-hash@npm:1.1.3"
+  checksum: 104b8667a5e0dc71bfcd29fee09cb88c6102e27bfb07c55f95535d90587d016731d52299380052e514266f4028a7a5172e0d9ac58e2f8f5001be61dc77c0754d
   languageName: node
   linkType: hard
 
