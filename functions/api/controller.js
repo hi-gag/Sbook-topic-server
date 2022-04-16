@@ -17,7 +17,7 @@ const postBookmark  = async(req, res, next) => {
   // 형태소 분석 + 최빈출 단어
   const task = new mod.TaskQueue();
 
-  let keywordsCandidate = await new Promise((resolve, reject) => {
+  let keywordsCandidates = await new Promise((resolve, reject) => {
     mod.ExecuteMorphModule(mainContent, function (err, rep) {
       if (err) {
         reject(err)
@@ -38,7 +38,7 @@ const postBookmark  = async(req, res, next) => {
   })
 
 
-  const keywords = Object.entries(keywordsCandidate)
+  const keywords = Object.entries(keywordsCandidates)
     .sort((prev, post) => post[1] - prev[1])
     .slice(0,3)
     .map((v) => v[0])
