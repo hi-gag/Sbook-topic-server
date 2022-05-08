@@ -18,7 +18,7 @@
     "axios": "^0.26.1",
     "cors": "^2.8.5",
     "express": "^4.17.3",
-    "firebase-admin": "^8.10.0",
+    "firebase-admin": "10.0.0",
     "firebase-functions": "^3.6.1",
     "korean-text-analytics": "^0.0.7",
     "mecab-ya": "^0.1.1",
