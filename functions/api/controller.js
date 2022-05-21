@@ -1,5 +1,4 @@
 const { extract } = require("article-parser/dist/cjs/article-parser.js");
-const mod = require("korean-text-analytics");
 const admin = require("firebase-admin");
 const stringHash = require("string-hash");
 const axios = require("axios");
