@@ -7,7 +7,7 @@
   - [x] bookmarkListId - keyword 바인딩한 형태로 DB에 저장 : `id - ['dd', 'ddd', 'dd']`
   - [x] 추천 URL 확보 : 키워드 기반으로 Google 검색 이용해 내용 확보한 후, DB에 저장 `'dd' - [1,2,3]`
     - 쿼리 쓸때 **이미 있는 경우** 주의
-- [x] GET `/bookmark/{bookmarkListId}/insight`
+- [x] GET `/bookmark/{bookmarkListId}/recommends`
   - [x] 해당 id에 바인딩된 키워드들 반환
   - [x] 해당 id에 바인딩된 키워드들의 추천 링크 반환
 
@@ -21,6 +21,9 @@ _ b, string, 소제목(h1, h2, h3, h4, h5)에 반복되어 나오는 키워드 5
 _ 해서 상위 10개 도출하고 10개 단어 중에, 10을 못넘으면 안됨 추천 링크 같은 경우는 queue에 넣어서 병렬적으로 돌려야함(시간이 너무 많이걸림)
 
 ## Spec
+
+- BaseURL :
+  https://us-central1-sbook-topic-ser.cloudfunctions.net/api
 
 ### POST `/bookmark/{bookmarkListId}/new`
 
@@ -115,6 +118,7 @@ _ 해서 상위 10개 도출하고 10개 단어 중에, 10을 못넘으면 안�
 ## 스택
 
 - node, express
+- docker, python, fastapi
+- kokoma
 - [article parser](https://github.com/ndaidong/article-parser)
-- [NodeJS-KoalaNLP](https://koalanlp.github.io/nodejs-support/)
 - firebase functions, firestore
