@@ -2,6 +2,16 @@ const { extract } = require("article-parser/dist/cjs/article-parser.js");
 const mod = require("korean-text-analytics");
 const admin = require("firebase-admin");
 const stringHash = require("string-hash");
+const axios = require("axios");
+
+const postKoNLP = async (content) => {
+  const { data } = await axios.post(
+    "https://konlp-docker.herokuapp.com/analyze",
+    { content }
+  );
+
+  return data;
+};
 
 const getRecommends = async (req, res, next) => {
   try {
@@ -48,12 +58,11 @@ const getRecommends = async (req, res, next) => {
 const postBookmark = async (req, res, next) => {
   const { bookmarkListId } = req.params;
   const { url: bookmarkUrl } = req.body;
+
   try {
     const { url, description, title, image, content } = await extract(
       bookmarkUrl
     );
-
-    //TODO 중복 체크해줘야댐
 
     const lineBreakRemovedContent = content.replace(/\n/g, " ");
     const codeRemovedContent = lineBreakRemovedContent.replace(
@@ -74,75 +83,12 @@ const postBookmark = async (req, res, next) => {
       .replace(/(<("[^"]*"|'[^']*'|[^'">])*>|&(.*);)/g, "")
       .replaceAll("  ", " ");
 
-    const task = new mod.TaskQueue();
+    const [titleKeywords, weightKeywords, keywordsCandidates] =
+      await Promise.all(
+        [title, weightContent, mainContent].map((content) => postKoNLP(content))
+      );
 
-    let titleKeywords = await new Promise((resolve, reject) => {
-      mod.ExecuteMorphModule(title, function (err, rep) {
-        if (err) {
-          reject(err);
-        }
-
-        let wordFreqMap = {};
-        rep.morphed.forEach(({ word, tag }) => {
-          if (["NNG", "NNP", "SL"].includes(tag)) {
-            if (wordFreqMap[word] === undefined) {
-              wordFreqMap[word] = 1;
-            }
-          }
-        });
-        resolve(wordFreqMap);
-      });
-    });
-
-    let weightKeywords = await new Promise((resolve, reject) => {
-      mod.ExecuteMorphModule(weightContent, function (err, rep) {
-        if (err) {
-          reject(err);
-        }
-
-        let wordFreqMap = {};
-        rep.morphed.forEach(({ word, tag }) => {
-          if (["NNP", "SL"].includes(tag)) {
-            if (wordFreqMap[word] === undefined) {
-              wordFreqMap[word] = 1;
-            }
-          }
-        });
-        resolve(wordFreqMap);
-      });
-    });
-
-    let keywordsCandidates = await new Promise((resolve, reject) => {
-      mod.ExecuteMorphModule(mainContent, function (err, rep) {
-        if (err) {
-          reject(err);
-        }
-
-        let wordFreqMap = {};
-        rep.morphed.forEach(({ word, tag }) => {
-          if (["NNP", "SL"].includes(tag)) {
-            if (wordFreqMap[word] !== undefined) {
-              wordFreqMap[word] += 1;
-            } else {
-              wordFreqMap[word] = 1;
-            }
-          }
-        });
-        resolve(wordFreqMap);
-      });
-    });
-
-    /*
-     *
-     * 가중치 기반 키워드 추출
-     *
-     * 고유명사와 외래어를 포함한 빈출 키워드 가중치에
-     * 제목 형태소에 10점
-     * b, string, 소제목(h1, h2, h3, h4, h5)에 반복되어 나오는 키워드 5점
-     * 해서 상위 10개 도출하고 10개 단어 중에, 10을 못넘으면 안됨
-     * 추천 링크 같은 경우는 queue에 넣어서 병렬적으로 돌려야함(시간이 너무 많이걸림)
-     * */
-
+    console.log(titleKeywords, weightKeywords, keywordsCandidates);
     const keywords = Object.entries(keywordsCandidates)
       .map(([str, weight]) => {
         if (titleKeywords[str] !== undefined) {

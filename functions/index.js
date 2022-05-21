@@ -15,7 +15,7 @@ loadExpressApp(app);
 exports.api = functions
   .runWith({
     timeoutSeconds: 360,
-    memory: "1GB",
+    memory: "8GB",
   })
   .https.onRequest(app);
 
