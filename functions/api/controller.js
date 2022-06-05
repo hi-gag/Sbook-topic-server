@@ -6,7 +6,9 @@ const axios = require("axios");
 const postKoNLP = async (content) => {
   const { data } = await axios.post(
     "https://konlp-docker.herokuapp.com/analyze",
-    { content }
+    {
+      content,
+    }
   );
 
   return data;
@@ -82,12 +84,16 @@ const postBookmark = async (req, res, next) => {
       .replace(/(<("[^"]*"|'[^']*'|[^'">])*>|&(.*);)/g, "")
       .replaceAll("  ", " ");
 
+    const emojiRegex =
+      /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g;
+
     const [titleKeywords, weightKeywords, keywordsCandidates] =
       await Promise.all(
-        [title, weightContent, mainContent].map((content) => postKoNLP(content))
+        [title, weightContent, mainContent]
+          .map((content) => content.replace(emojiRegex, ""))
+          .map((content) => postKoNLP(content))
       );
 
-    console.log(titleKeywords, weightKeywords, keywordsCandidates);
     const keywords = Object.entries(keywordsCandidates)
       .map(([str, weight]) => {
         if (titleKeywords[str] !== undefined) {
@@ -112,10 +118,6 @@ const postBookmark = async (req, res, next) => {
 
     const ref = admin.firestore().collection("bookmarks").doc(bookmarkId);
     const isRefExist = await ref.get();
-
-    if (isRefExist.exists) {
-      return res.status(400).json({ error: "이미 북마크에 있습니다" });
-    }
 
     await ref.set({
       id: bookmarkId,
